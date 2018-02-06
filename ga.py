@@ -47,7 +47,7 @@ class GA:
         return ga3, ga4
     
     
-    def __ret2DataFrame(self, reports):
+    def _ret2DataFrame(self, reports):
       for report in reports:
         dim_names = [x.replace("ga:","") for x in
                 report.get("columnHeader").get("dimensions")]
@@ -71,9 +71,10 @@ class GA:
       body["reportRequests"] = requests
       #print(body)
       ret = service.reports().batchGet(body=body).execute()
+      ##only to get first reports -> first requests
       rowCount = ret['reports'][0]['data']['rowCount']
       if not nextPageToken: print(rowCount) 
-      yield from self.__ret2DataFrame(ret['reports'])
+      yield from self._ret2DataFrame(ret['reports'])
       if 'nextPageToken' not in ret['reports'][0]:
         return 
       else:
@@ -93,8 +94,19 @@ class GA:
     def get_template(view_id):
         return {
             'viewId': view_id, 
-            'dateRanges': [{'startDate': 'yesterday', 'endDate': 'yesterday'}],
+            'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'yesterday'}],
             'metrics': [{'expression': 'ga:pageviews'},{'expression': 'ga:users'}],
             #'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:dimension6'}]}
-            'dimensions': [{'name':'ga:channelGrouping'}]
+            'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:deviceCategory'}]
+        }
+
+
+    def get_template_seg(view_id):
+        return {
+            'viewId': view_id, 
+            'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'yesterday'}],
+            'metrics': [{'expression': 'ga:pageviews'},{'expression': 'ga:users'}],
+            #'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:dimension6'}]}
+            'dimensions': [{'name':'ga:deviceCategory'}],
+            'segments': [{'segmentId': "sessions::condition::ga:medium~=organic"}]
         }
