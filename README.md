@@ -1,7 +1,7 @@
 FOR COLABORATORY(Google's jupyter in Google Drive) USE
 
 see this
-https://colab.research.google.com/drive/1OVXOcbulNQokysQaCAofadglP44Ww6pb
+https://drive.google.com/file/d/1OVXOcbulNQokysQaCAofadglP44Ww6pb/view?usp=sharing
 
 ONLY IN COLABORATORY
 
