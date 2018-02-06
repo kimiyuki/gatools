@@ -3,10 +3,13 @@ FOR COLABORATORY(Google's jupyter in Google Drive) USE
 see this
 https://colab.research.google.com/drive/1OVXOcbulNQokysQaCAofadglP44Ww6pb
 
-how to use
+ONLY IN COLABORATORY
 
 ```
 #======
+!rm -f ga.py
+!wget https://raw.githubusercontent.com/kimiyuki/google-analytics-lib/master/ga.py
+import pandas as pd
 import ga
 code = ga.get_code()
 ##=====
