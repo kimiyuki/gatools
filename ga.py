@@ -24,6 +24,8 @@ class GA:
                    
         # Redirect URI for installed apps4/4qWAzJo6NbPR-q2M42BbD7oYAFD4mr-mSgoH4OoSID0
         self.REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+        self.service4 = None
+        self.service3 = None
 
     # Run through the OAuth flow and retrieve credentials
     def get_code(self):
@@ -42,9 +44,9 @@ class GA:
         # Create an httplib2.Http object and authorize it with our credentials
         http = httplib2.Http()
         http = credentials.authorize(http)
-        ga4 = build('analytics', 'v4', http=http)
-        ga3 = build('analytics', 'v3', http=http)
-        return ga3, ga4
+        self.service4 = build('analytics', 'v4', http=http)
+        self.serivce3 = build('analytics', 'v3', http=http)
+        print("ok")
     
     
     def _ret2DataFrame(self, reports):
@@ -66,11 +68,11 @@ class GA:
     
 
     
-    def getData(self, service, requests, nextPageToken=None):
+    def getData(self, requests, nextPageToken=None):
       body = {}
       body["reportRequests"] = requests
       #print(body)
-      ret = service.reports().batchGet(body=body).execute()
+      ret = self.service.reports().batchGet(body=body).execute()
       ##only to get first reports -> first requests
       rowCount = ret['reports'][0]['data']['rowCount']
       if not nextPageToken: print(rowCount) 
@@ -88,7 +90,7 @@ class GA:
         #  nextPageToken = nextPageToken + 10000
         #  print("nextPageToken:{}".format(nextPageToken))
         print("nextPageToken:{}".format(nextPageToken))
-        yield from self.getData(service, requests, nextPageToken)
+        yield from self.getData(requests, nextPageToken)
 
 
     def get_template(view_id):
@@ -108,5 +110,5 @@ class GA:
             'metrics': [{'expression': 'ga:pageviews'},{'expression': 'ga:users'}],
             #'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:dimension6'}]}
             'dimensions': [{'name':'ga:deviceCategory'},{'name':'ga:segment'}],
-            'segments': [{'segmentId': "sessions::condition::ga:medium~=organic"}]
+            'segments': [{'segmentId': "sessions::condition::ga:medium=~organic"}]
         }
