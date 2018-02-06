@@ -72,7 +72,7 @@ class GA:
       body = {}
       body["reportRequests"] = requests
       #print(body)
-      ret = self.service.reports().batchGet(body=body).execute()
+      ret = self.service4.reports().batchGet(body=body).execute()
       ##only to get first reports -> first requests
       rowCount = ret['reports'][0]['data']['rowCount']
       if not nextPageToken: print(rowCount) 
