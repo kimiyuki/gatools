@@ -1,10 +1,14 @@
-FOR COLABORATORY USE
+FOR COLABORATORY(Google's jupyter in Google Drive) USE
 
 how to use
 
 ```
+#======
 import ga
 code = ga.get_code()
+##=====
+## separate the cells to handle oauth flow.
+##=====
 ga3, ga4 = ga.build_service(code) #google analtics api version3, version4
 
 VIEW_ID = "xxxxxx" 
