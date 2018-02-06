@@ -107,6 +107,6 @@ class GA:
             'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'yesterday'}],
             'metrics': [{'expression': 'ga:pageviews'},{'expression': 'ga:users'}],
             #'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:dimension6'}]}
-            'dimensions': [{'name':'ga:deviceCategory'}],
+            'dimensions': [{'name':'ga:deviceCategory'},{'name':'ga:segment'}],
             'segments': [{'segmentId': "sessions::condition::ga:medium~=organic"}]
         }
