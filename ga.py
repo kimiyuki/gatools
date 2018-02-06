@@ -47,7 +47,7 @@ class GA:
         return ga3, ga4
     
     
-    def ret2DataFrame(self, reports):
+    def __ret2DataFrame(self, reports):
       for report in reports:
         dim_names = [x.replace("ga:","") for x in
                 report.get("columnHeader").get("dimensions")]
@@ -73,7 +73,7 @@ class GA:
       ret = service.reports().batchGet(body=body).execute()
       rowCount = ret['reports'][0]['data']['rowCount']
       if not nextPageToken: print(rowCount) 
-      yield from ret2DataFrame(ret['reports'])
+      yield from self.__ret2DataFrame(ret['reports'])
       if 'nextPageToken' not in ret['reports'][0]:
         return 
       else:
@@ -87,7 +87,7 @@ class GA:
         #  nextPageToken = nextPageToken + 10000
         #  print("nextPageToken:{}".format(nextPageToken))
         print("nextPageToken:{}".format(nextPageToken))
-        yield from getData(service, requests, nextPageToken)
+        yield from self.getData(service, requests, nextPageToken)
 
 
     def get_template(view_id):
