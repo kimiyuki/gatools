@@ -47,25 +47,6 @@ class GA:
         self.service4 = build('analytics', 'v4', http=http)
         self.serivce3 = build('analytics', 'v3', http=http)
         print("ok")
-    
-    
-    def _ret2DataFrame(self, reports):
-      for report in reports:
-        dim_names = [x.replace("ga:","") for x in
-                report.get("columnHeader").get("dimensions")]
-        mtr_names = [x['name'].replace("ga:","") for x in 
-                report.get("columnHeader").get("metricHeader").get("metricHeaderEntries")]
-        mtr_dtypes = [x['type'].replace("ga:","") for x in 
-                report.get("columnHeader").get("metricHeader").get("metricHeaderEntries")]
-        mydic = {'STRING': str, "INTEGER": np.int, "FLOAT": np.float}
-        dim_dtypes = [str for _ in range(len(dim_names))]
-        mtr_dtypes = [mydic[x] for x in mtr_dtypes]
-        dim_ind = [x['dimensions'] for x in report['data']['rows']]
-        mtr_dat = np.array([x['metrics'][0]['values'] for x in report['data']['rows']])
-        yield pd.concat([
-            pd.DataFrame(dim_ind, columns=dim_names), 
-            pd.DataFrame(mtr_dat.astype(int),columns=mtr_names)], axis=1)
-    
 
     
     def getData(self, requests, nextPageToken=None):
@@ -112,3 +93,21 @@ class GA:
             'dimensions': [{'name':'ga:deviceCategory'},{'name':'ga:segment'}],
             'segments': [{'segmentId': "sessions::condition::ga:medium=~organic"}]
         }
+    
+    
+    def _ret2DataFrame(self, reports):
+      for report in reports:
+        dim_names = [x.replace("ga:","") for x in
+                report.get("columnHeader").get("dimensions")]
+        mtr_names = [x['name'].replace("ga:","") for x in 
+                report.get("columnHeader").get("metricHeader").get("metricHeaderEntries")]
+        mtr_dtypes = [x['type'].replace("ga:","") for x in 
+                report.get("columnHeader").get("metricHeader").get("metricHeaderEntries")]
+        mydic = {'STRING': str, "INTEGER": np.int, "FLOAT": np.float}
+        dim_dtypes = [str for _ in range(len(dim_names))]
+        mtr_dtypes = [mydic[x] for x in mtr_dtypes]
+        dim_ind = [x['dimensions'] for x in report['data']['rows']]
+        mtr_dat = np.array([x['metrics'][0]['values'] for x in report['data']['rows']])
+        yield pd.concat([
+            pd.DataFrame(dim_ind, columns=dim_names), 
+            pd.DataFrame(mtr_dat.astype(int),columns=mtr_names)], axis=1)
