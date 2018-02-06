@@ -1,5 +1,8 @@
 FOR COLABORATORY(Google's jupyter in Google Drive) USE
 
+see this
+https://colab.research.google.com/drive/1OVXOcbulNQokysQaCAofadglP44Ww6pb
+
 how to use
 
 ```
@@ -9,7 +12,7 @@ code = ga.get_code()
 ##=====
 ## separate the cells to handle oauth flow.
 ##=====
-ga3, ga4 = ga.build_service(code) #google analtics api version3, version4
+ga.build_service(code) #google analtics api version3, version4
 
 VIEW_ID = "xxxxxx" 
 reportRequest = {
@@ -19,5 +22,5 @@ reportRequest = {
             #'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:dimension6'}]}
             'dimensions': [{'name':'ga:pagePath'},{'name':'ga:dimension14'},{'name':'ga:dimension16'}]
 }
-ret = pd.concat( (x for x in getData(ga4, [reportRequest])) )
+ret = pd.concat( (x for x in getData([reportRequest])) )
 ```
