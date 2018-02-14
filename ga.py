@@ -69,7 +69,7 @@ class GA:
         requests[0]['pageSize'] = 10000
         requests[0]['pageToken'] = str(nextPageToken) #need to be STRING!
         print("nextPageToken:{}".format(nextPageToken))
-        while nextPageToken + 10000 < rowCount or len(requests) < 6:
+        while nextPageToken + 10000 < rowCount and len(requests) < 6:
            new_req = requests[0].copy()
            nextPageToken = nextPageToken + 10000
            new_req['pageToken'] = nextPageToken 
