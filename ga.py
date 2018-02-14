@@ -4,7 +4,7 @@ import httplib2
 from apiclient import errors
 from apiclient.discovery import build
 from oauth2client.client import OAuth2WebServerFlow
-#from google.colab import auth
+from google.colab import auth
 
 
 class GA:
@@ -35,7 +35,7 @@ class GA:
         authorize_url = flow.step1_get_authorize_url()
         print('Go to the following link in your browser: ' + authorize_url)
         #取り消したい場合は、適当な文字を入れて、実行を終わらせ。再度セルの実行をし、文字列を入れなおす
-        #return auth.getpass.getpass()
+        return auth.getpass.getpass()
     
     
     def build_service(self, code):
@@ -49,7 +49,7 @@ class GA:
         self.serivce3 = build('analytics', 'v3', http=http)
         self.gsc = build('webmasters', 'v3', http=http)
         print("ok")
-        return self.service4, self.service3, self.gsc
+        return self.service4, self.service3, self.gsc, credentials
 
     
     def getData(self, requests, nextPageToken=None, maxreq=5):
