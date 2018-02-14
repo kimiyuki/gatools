@@ -61,19 +61,20 @@ class GA:
       rowCount = ret['reports'][0]['data']['rowCount']
       if not nextPageToken: print(rowCount) 
       yield from self._ret2DataFrame(ret['reports'])
-      if 'nextPageToken' not in ret['reports'][0]:
+      if 'nextPageToken' not in ret['reports'][-1]:
         return 
       else:
         nextPageToken = int(ret['reports'][0]['nextPageToken'])
         requests[0]['pageSize'] = 10000
         requests[0]['pageToken'] = str(nextPageToken) #need to be STRING!
-        #while nextPageToken + 10000 < rowCount:
-        #  new_req = req.copy()
-        #  new_req['pageToken'] = nextPageToken + 10000 
-        #  requests.append(new_req)
-        #  nextPageToken = nextPageToken + 10000
-        #  print("nextPageToken:{}".format(nextPageToken))
         print("nextPageToken:{}".format(nextPageToken))
+        while nextPageToken + 10000 < rowCount or len(requests) < 6:
+           new_req = req.copy()
+           nextPageToken = nextPageToken + 10000
+           new_req['pageToken'] = nextPageToken 
+           requests.append(new_req)
+           print("nextPageToken:{}".format(nextPageToken))
+        print("batch get:{} requests".format(len(requests)))
         yield from self.getData(requests, nextPageToken)
 
 
