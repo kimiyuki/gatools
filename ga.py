@@ -64,12 +64,13 @@ class GA:
       if 'nextPageToken' not in ret['reports'][-1]:
         return 
       else:
+        requests = [requests[0]]
         nextPageToken = int(ret['reports'][0]['nextPageToken'])
         requests[0]['pageSize'] = 10000
         requests[0]['pageToken'] = str(nextPageToken) #need to be STRING!
         print("nextPageToken:{}".format(nextPageToken))
         while nextPageToken + 10000 < rowCount or len(requests) < 6:
-           new_req = req.copy()
+           new_req = requests[0].copy()
            nextPageToken = nextPageToken + 10000
            new_req['pageToken'] = nextPageToken 
            requests.append(new_req)
