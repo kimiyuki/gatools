@@ -52,7 +52,7 @@ class GA:
         return self.service4, self.service3, self.gsc
 
     
-    def getData(self, requests, nextPageToken=None):
+    def getData(self, requests, nextPageToken=None, maxreq=5):
       body = {}
       body["reportRequests"] = requests
       #print(body)
@@ -64,15 +64,16 @@ class GA:
       if 'nextPageToken' not in ret['reports'][-1]:
         return 
       else:
+        nextPageToken = int(ret['reports'][-1]['nextPageToken'])
+        #make requests object again with requests[0]
         requests = [requests[0]]
-        nextPageToken = int(ret['reports'][0]['nextPageToken'])
         requests[0]['pageSize'] = 10000
         requests[0]['pageToken'] = str(nextPageToken) #need to be STRING!
         print("nextPageToken:{}".format(nextPageToken))
-        while nextPageToken + 10000 < rowCount and len(requests) < 6:
+        while nextPageToken + 10000 < rowCount and len(requests) < maxreq:
            new_req = requests[0].copy()
            nextPageToken = nextPageToken + 10000
-           new_req['pageToken'] = nextPageToken 
+           new_req['pageToken'] = str(nextPageToken) 
            requests.append(new_req)
            print("nextPageToken:{}".format(nextPageToken))
         print("batch get:{} requests".format(len(requests)))
