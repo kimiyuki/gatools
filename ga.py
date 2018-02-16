@@ -8,11 +8,13 @@ from google.colab import auth
 
 
 class GA:
-    def __init__(self):
+    def __init__(self,
+            CLIENT_ID='643412917207-qt8pe5hmntb9dpi5gbis2d3q8aithhhi.apps.googleusercontent.com',
+            CLIENT_SECRET='_UWPT3S0BFH7ONVlzHnNl4ZX'):
         # Copy your credentials from the console
         #自分の OAuth ID,SECRETがやるのが望ましいです。
-        self.CLIENT_ID = '643412917207-qt8pe5hmntb9dpi5gbis2d3q8aithhhi.apps.googleusercontent.com'
-        self.CLIENT_SECRET = '_UWPT3S0BFH7ONVlzHnNl4ZX'
+        self.CLIENT_ID = CLIENT_ID 
+        self.CLIENT_SECRET = CLIENT_SECRET
         
         # Check
         #https://developers.google.com/webmaster-tools/search-console-api-original/v3/ for all scopes
