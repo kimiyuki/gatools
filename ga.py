@@ -4,7 +4,7 @@ import httplib2
 from apiclient import errors
 from apiclient.discovery import build
 from oauth2client.client import OAuth2WebServerFlow
-from google.colab import auth
+#from google.colab import auth
 
 
 class GA:
@@ -82,16 +82,17 @@ class GA:
         yield from self.getData(requests, nextPageToken)
 
 
+    @staticmethod
     def get_template(view_id):
         return {
             'viewId': view_id, 
             'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'yesterday'}],
             'metrics': [{'expression': 'ga:pageviews'},{'expression': 'ga:users'}],
             #'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:dimension6'}]}
-            'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:deviceCategory'}]
-        }
+            'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:deviceCategory'}]}
 
 
+    @staticmethod
     def get_template_seg(view_id):
         return {
             'viewId': view_id, 
