@@ -79,7 +79,7 @@ class GA:
            requests.append(new_req)
            print("nextPageToken:{}".format(nextPageToken))
         print("batch get:{} requests".format(len(requests)))
-        yield from self.getData(requests, nextPageToken)
+        yield from self.getData(requests, nextPageToken,maxreq=maxreq)
 
 
     @staticmethod
