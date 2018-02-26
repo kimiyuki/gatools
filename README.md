@@ -10,12 +10,13 @@ ONLY IN COLABORATORY
 !rm -f ga.py
 !wget https://raw.githubusercontent.com/kimiyuki/google-analytics-lib/master/ga.py
 import pandas as pd
-import ga
+from ga import GA
+ga = GA()
 code = ga.get_code()
 ##=====
 ## separate the cells to handle oauth flow.
 ##=====
-ga.build_service(code) #google analtics api version3, version4
+ga4,ga3,gsc,cred = ga.build_service(code) #google analtics api version3, version4
 
 VIEW_ID = "xxxxxx" 
 req  = ga.get_template()
