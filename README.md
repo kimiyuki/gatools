@@ -1,9 +1,8 @@
 FOR COLABORATORY(Google's jupyter in Google Drive) USE
 
-see this
-https://drive.google.com/file/d/1OVXOcbulNQokysQaCAofadglP44Ww6pb/view?usp=sharing
+ONLY IN COLABORATORY python3
 
-ONLY IN COLABORATORY
+[view in jupyter] (https://github.com/kimiyuki/google-analytics-lib/blob/master/GA_management.ipynb)
 
 ```
 #======
