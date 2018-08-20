@@ -48,7 +48,7 @@ class GA:
         http = httplib2.Http()
         http = credentials.authorize(http)
         self.service4 = build('analytics', 'v4', http=http)
-        self.serivce3 = build('analytics', 'v3', http=http)
+        self.service3 = build('analytics', 'v3', http=http)
         self.gsc = build('webmasters', 'v3', http=http)
         print("ok")
         return self.service4, self.service3, self.gsc, credentials
