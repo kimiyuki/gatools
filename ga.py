@@ -50,8 +50,8 @@ class GA:
         self.service4 = build('analytics', 'v4', http=http)
         self.service3 = build('analytics', 'v3', http=http)
         self.gsc = build('webmasters', 'v3', http=http)
-        assert all(v is None for v in [self.service4, self.service3, gsc]), "ga4, ga3, gsc are not None" 
-        return self.service4, self.service3, self.gsc, credentials
+        assert all(v is None for v in [self.service4, self.service3, gsc]), "either ga4, ga3 or gsc is None" 
+        return self.service3, self.service4, self.gsc, credentials
 
     
     def getData(self, requests, nextPageToken=None, maxreq=5):
