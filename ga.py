@@ -4,7 +4,9 @@ import httplib2
 from apiclient import errors
 from apiclient.discovery import build
 from oauth2client.client import OAuth2WebServerFlow
-from google.colab import auth
+from oauth2client import file
+from oauth2client import tools 
+#from google.colab import auth
 
 
 class GA:
@@ -20,47 +22,54 @@ class GA:
         #https://developers.google.com/webmaster-tools/search-console-api-original/v3/ for all scopes
         OAUTH_SCOPE = ['https://www.googleapis.com/auth/analytics', 
                        'https://www.googleapis.com/auth/analytics.readonly',
-                       'https://www.googleapis.com/auth/webmasters.readonly',
-                       'https://www.googleapis.com/auth/gmail.send']
+                       'https://www.googleapis.com/auth/webmasters.readonly']
+     
         self.OAUTH_SCOPE = OAUTH_SCOPE
                    
         # Redirect URI for installed apps4/4qWAzJo6NbPR-q2M42BbD7oYAFD4mr-mSgoH4OoSID0
         self.REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
-        self.service4 = None
-        self.service3 = None
+        self.cred = None
+        self.ga3 = None
+        self.ga4 = None
         self.gsc = None
 
-    # Run through the OAuth flow and retrieve credentials
-    def get_code(self):
+    def _create_cred(self):
+        flow = OAuth2WebServerFlow(self.CLIENT_ID, self.CLIENT_SECRET,self.OAUTH_SCOPE, self.REDIRECT_URI)
+        print(flow.step1_get_authorize_url())
+        code = input()
+        self.cred = flow.step2_exchange(code.strip())
+
+    def create_cred_in_colab(self):
         flow = OAuth2WebServerFlow(self.CLIENT_ID, self.CLIENT_SECRET,
                                    self.OAUTH_SCOPE, self.REDIRECT_URI)
         authorize_url = flow.step1_get_authorize_url()
         print('Go to the following link in your browser: ' + authorize_url)
         #取り消したい場合は、適当な文字を入れて、実行を終わらせ。再度セルの実行をし、文字列を入れなおす
-        return auth.getpass.getpass()
-    
-    
-    def build_service(self, code):
-        flow = OAuth2WebServerFlow(self.CLIENT_ID, self.CLIENT_SECRET,
-                                   self.OAUTH_SCOPE, self.REDIRECT_URI)
-        credentials = flow.step2_exchange(code.strip())
-        # Create an httplib2.Http object and authorize it with our credentials
-        http = httplib2.Http()
-        http = credentials.authorize(http)
-        self.service4 = build('analytics', 'v4', http=http)
-        self.service3 = build('analytics', 'v3', http=http)
+        code = auth.getpass.getpass()
+        self.cred = flow.step2_exchange(code.strip())
+
+    def build_service(self):
+        storage = file.Storage('ga.dat')
+        self.cred = storage.get()
+        if self.cred is None or self.cred.invalid:
+            self._create_cred() 
+        http = self.cred.authorize(http=httplib2.Http())
+        self.cred.refresh(http)
+        self.ga4 = build('analytics', 'v4', http=http)
+        self.ga3 = build('analytics', 'v3', http=http)
         self.gsc = build('webmasters', 'v3', http=http)
-        assert self.service4, "ga4 not valid"
-        assert self.service3, "ga3 not valid"
+        assert self.ga4, "ga4 not valid"
+        assert self.ga3, "ga3 not valid"
         assert self.gsc, "gsc not valid"
-        return self.service4, self.service3, self.gsc, credentials
+        print('ok')
+        return True 
 
     
     def getData(self, requests, nextPageToken=None, maxreq=5):
       body = {}
       body["reportRequests"] = requests
       #print(body)
-      ret = self.service4.reports().batchGet(body=body).execute()
+      ret = self.ga4.reports().batchGet(body=body).execute()
       ##only to get first reports -> first requests
       rowCount = ret['reports'][0]['data']['rowCount']
       if not nextPageToken: print(rowCount) 
@@ -105,7 +114,37 @@ class GA:
             'segments': [{'segmentId': "sessions::condition::ga:medium=~organic"}]
         }
     
-    
+
+    def get_gsc_list():
+        tmp = self.gsc.sites().list().execute()
+        return pd.DataFrame(tmp['siteEntry'])
+
+
+    def sa(url:str):
+        """
+        search analytics data
+        thanks for code https://note.nkmk.me/python-search-console-api-download/
+        TODO implements paging request
+        """
+        start_date = (pd.datetime.now()  - pd.Timedelta(5, 'D')).strftime("%Y-%m-%d")
+        end_date = (pd.datetime.now()  - pd.Timedelta(5, 'D')).strftime("%Y-%m-%d")
+        d_list = ['query', 'page']
+        row_limit = 25000
+
+        body = {
+          'startDate': start_date, 'endDate': end_date,
+          'dimensions': d_list,
+          'rowLimit': row_limit
+        }
+        response = self.gsc.searchanalytics().query(siteUrl=url, body=body).execute()
+        df = pd.io.json.json_normalize(response['rows'])
+        for i, d in enumerate(d_list):
+            df[d] = df['keys'].apply(lambda x: x[i])
+
+        df.drop(columns='keys', inplace=True)
+        return df 
+
+
     def _ret2DataFrame(self, reports):
       for report in reports:
         dim_names = [x.replace("ga:","") for x in
