@@ -6,24 +6,28 @@ from apiclient.discovery import build
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client import file
 from oauth2client import tools 
+from utils.jsonparse import my_dict_df
 try:
     from google.colab import auth
 except:
     print("I assume you are not using colab")
 
 
-class GA:
-    def __init__(self, path=None, newUser=False,
-            CLIENT_ID='643412917207-qt8pe5hmntb9dpi5gbis2d3q8aithhhi.apps.googleusercontent.com',
-            CLIENT_SECRET='_UWPT3S0BFH7ONVlzHnNl4ZX'):
+OAUTH_SCOPE = ['https://www.googleapis.com/auth/analytics', 
+               'https://www.googleapis.com/auth/analytics.readonly',
+               'https://www.googleapis.com/auth/webmasters.readonly',
+               'https://www.googleapis.com/auth/spreadsheets',
+               'https://www.googleapis.com/auth/drive']
+CLIENT_ID='643412917207-qt8pe5hmntb9dpi5gbis2d3q8aithhhi.apps.googleusercontent.com'
+CLIENT_SECRET='_UWPT3S0BFH7ONVlzHnNl4ZX'
+class SiteData:
+    """google analytics, google search console data reporter"""
+    def __init__(self, path=None, newUser=False):
         # Copy your credentials from the console
         #自分の OAuth ID,SECRETがやるのが望ましいです。
         self.CLIENT_ID = CLIENT_ID 
         self.CLIENT_SECRET = CLIENT_SECRET
         #https://developers.google.com/webmaster-tools/search-console-api-original/v3/ for all scopes
-        OAUTH_SCOPE = ['https://www.googleapis.com/auth/analytics', 
-                       'https://www.googleapis.com/auth/analytics.readonly',
-                       'https://www.googleapis.com/auth/webmasters.readonly']
         self.OAUTH_SCOPE = OAUTH_SCOPE
         self.REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
         self.cred, self.ga3, self.ga4, self.gsc = None,None,None,None
@@ -38,13 +42,13 @@ class GA:
     def build_service(self):
         http = self.cred.authorize(http=httplib2.Http())
         self.cred.refresh(http)
-        self.ga4 = build('analytics', 'v4', http=http)
-        self.ga3 = build('analytics', 'v3', http=http)
-        self.gsc = build('webmasters', 'v3', http=http)
-        assert self.ga4, "ga4 not valid"
-        assert self.ga3, "ga3 not valid"
-        assert self.gsc, "gsc not valid"
+        self.service_ga4 = build('analytics', 'v4', http=http)
+        self.service_ga3 = build('analytics', 'v3', http=http)
+        self.service_gsc = build('webmasters', 'v3', http=http)
+        assert all([self.service_ga3, self.service_ga4, self.service_gsc]), "credentail error"
         print('ok')
+        self.ga_report  = GaData(self.service_ga3, self.service_ga4)
+        self.gsc_report = GscData(self.service_gsc)
         return True 
 
     def _get_cred(self, path):
@@ -72,13 +76,44 @@ class GA:
         code = auth.getpass.getpass()
         self.cred = flow.step2_exchange(code.strip())
 
+    def ga_account_summary(self):
+        return self.ga_report.get_account_summary()
 
-    
-    def getData(self, requests, nextPageToken=None, maxreq=5):
+    def ga_report(self, requests, nextPageToken=None, maxreq=5):
+        return self.ga_report.report(requests, nextPageToken, maxreq)
+
+    def gsc_list_sites(self):
+        return self.gsc_report.list_sites()
+
+    def gsc_report(self):
+        return self.gsc_report.report()
+
+
+class GaData:    
+    def __init__(self, service_ga3, service_ga4):
+        self.service_ga3 = service_ga3
+        self.service_ga4 = service_ga4
+
+    def get_account_summary(self):
+        """get google analytics account summary in profile level"""
+        jsn = self.service_ga3.management().accountSummaries().list().execute()
+        wp = pd.io.json.json_normalize(
+                jsn['items'], record_path='webProperties', meta=['id','name'], meta_prefix='ac_'
+             ).drop(['kind','profiles'], axis=1)
+        wp.set_index('id', inplace=True)
+        profiles = pd.io.json.json_normalize(
+                jsn['items'], record_path=['webProperties', 'profiles'], 
+                record_prefix="profile_", meta=[['webProperties','id']]
+                ).drop(['profile_kind'], axis=1)
+        profiles.set_index('webProperties.id', inplace=True)
+        profiles.index.name = 'id'
+        return pd.merge(profiles, wp, on="id") 
+
+    def report(self, requests, nextPageToken=None, maxreq=5):
       body = {}
       body["reportRequests"] = requests
       #print(body)
-      ret = self.ga4.reports().batchGet(body=body).execute()
+      ret = self.service_ga4.reports().batchGet(body=body).execute()
       ##only to get first reports -> first requests
       rowCount = ret['reports'][0]['data']['rowCount']
       if not nextPageToken: print(rowCount) 
@@ -101,67 +136,6 @@ class GA:
         print("batch get:{} requests".format(len(requests)))
         yield from self.getData(requests, nextPageToken,maxreq=maxreq)
 
-
-    @staticmethod
-    def get_template(view_id):
-        return {
-            'viewId': view_id, 
-            'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'yesterday'}],
-            'metrics': [{'expression': 'ga:pageviews'},{'expression': 'ga:users'}],
-            #'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:dimension6'}]}
-            'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:deviceCategory'}]}
-
-
-    @staticmethod
-    def get_template_seg(view_id):
-        return {
-            'viewId': view_id, 
-            'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'yesterday'}],
-            'metrics': [{'expression': 'ga:pageviews'},{'expression': 'ga:users'}],
-            #'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:dimension6'}]}
-            'dimensions': [{'name':'ga:deviceCategory'},{'name':'ga:segment'}],
-            'segments': [{'segmentId': "sessions::condition::ga:medium=~organic"}]
-        }
-    
-    def get_ga_account_summary(self):
-        json = self.ga3.management().accountSummaries().execute()
-        df = pd.io.json.json_normalize(json['items'])
-        
-
-
-
-    def get_gsc_list(self):
-        tmp = self.gsc.sites().list().execute()
-        return pd.DataFrame(tmp['siteEntry'])
-
-
-    def sa(self, url:str):
-        """
-        search analytics data
-        thanks for code https://note.nkmk.me/python-search-console-api-download/
-        TODO implements paging request
-        """
-        start_date = (pd.datetime.now()  - pd.Timedelta(12, 'D')).strftime("%Y-%m-%d")
-        end_date = (pd.datetime.now()  - pd.Timedelta(5, 'D')).strftime("%Y-%m-%d")
-        d_list = ['query', 'page']
-        row_limit = 25000
-
-        body = {
-          'startDate': start_date, 'endDate': end_date,
-          'dimensions': d_list,
-          'rowLimit': row_limit
-        }
-        response = self.gsc.searchanalytics().query(siteUrl=url, body=body).execute()
-        df = pd.io.json.json_normalize(response['rows'])
-        for i, d in enumerate(d_list):
-            df[d] = df['keys'].apply(lambda x: x[i])
-
-        df.drop(columns='keys', inplace=True)
-        #pandas dataframe has the method name 'query', so rename query to q
-        df.rename(columns={'query':'q'})
-        return df 
-
-
     def _ret2DataFrame(self, reports):
       for report in reports:
         dim_names = [x.replace("ga:","") for x in
@@ -178,3 +152,71 @@ class GA:
         yield pd.concat([
             pd.DataFrame(dim_ind, columns=dim_names), 
             pd.DataFrame(mtr_dat.astype(int),columns=mtr_names)], axis=1)
+
+    @staticmethod
+    def get_template(view_id):
+        """set request parameters"""
+        return {
+            'viewId': str(view_id), 
+            'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'yesterday'}],
+            'metrics': [{'expression': 'ga:pageviews'},{'expression': 'ga:users'}],
+            #'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:dimension6'}]}
+            'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:date'},{'name':'ga:deviceCategory'}]}
+
+
+    @staticmethod
+    def get_template_seg(view_id):
+        """set reqeust parameters about segment data""" 
+        return {
+            'viewId': view_id, 
+            'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'yesterday'}],
+            'metrics': [{'expression': 'ga:pageviews'},{'expression': 'ga:users'}],
+            #'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:dimension6'}]}
+            'dimensions': [{'name':'ga:deviceCategory'},{'name':'ga:segment'}],
+            'segments': [{'segmentId': "sessions::condition::ga:medium=~organic"}]
+        }
+    
+
+        
+class GscData:
+    """Google Search Console reporter"""
+    def __init__(self, service_gsc):
+        self.service_gsc = service_gsc
+
+    def list_sites(self):
+        tmp = self.service_gsc.sites().list().execute()
+        if tmp.get('siteEntry'):
+            return pd.DataFrame(tmp['siteEntry'])
+        else:
+            print("no site entried")
+            return None
+
+
+    def search_analyics(self, url:str, start_date=None, end_date=None):
+        """
+        search analytics data
+        thanks for code https://note.nkmk.me/python-search-console-api-download/
+        TODO implements paging request
+        """
+        if start_date is None:
+            start_date = (pd.datetime.now()  - pd.Timedelta(12, 'D')).strftime("%Y-%m-%d")
+        if end_date is None:
+            end_date = (pd.datetime.now()  - pd.Timedelta(5, 'D')).strftime("%Y-%m-%d")
+        print(f"start_date:{start_date}, end_date:{end_date}")
+        d_list = ['query', 'page']
+        row_limit = 25000
+
+        body = {
+          'startDate': start_date, 'endDate': end_date,
+          'dimensions': d_list, 'rowLimit': row_limit
+        }
+        response = self.service_gsc.searchanalytics().query(siteUrl=url, body=body).execute()
+        df = pd.io.json.json_normalize(response['rows'])
+        for i, d in enumerate(d_list):
+            df[d] = df['keys'].apply(lambda x: x[i])
+
+        df.drop(columns='keys', inplace=True)
+        #pandas dataframe has the method name 'query', so rename query to q
+        df = df.rename(columns={'query':'q'})
+        return df 
+
