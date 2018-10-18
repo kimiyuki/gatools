@@ -1,0 +1,25 @@
+account1:
+  gaview: 
+    -   
+     name: my-ga-view-name 
+     id: '0000000'
+    - 
+     name: my-ga-view-name2 
+     id: '0000'
+
+account2:
+  gaview:
+    -
+      name: my-ga-view-name 
+      id: '333333'
+    -
+      name: my-ga-view-name100 
+      id: '22222' 
+  gsc:
+    -
+     siteurl: "https://foo.bar"
+
+
+
+
+

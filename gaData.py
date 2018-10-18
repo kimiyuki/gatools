@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import copy
 
 class GaData:    
     def __init__(self, service_ga3, service_ga4):
@@ -22,13 +23,28 @@ class GaData:
         profiles.index.name = 'id'
         return pd.merge(profiles, wp, on="id") 
 
+    def _is_valid_request(self, req):
+        #dimensions is not necessary in google API, though I put it
+        KEYS = ['dateRanges', 'metrics', 'dimensions'] 
+        if type(req) is not dict:
+            raise TypeError
+        if not all([x in req.keys() for x in KEYS]):
+            print(f'at least {",".join(KEYS)} needed')
+            raise ValueError
+        return True
+
     def report(self, requests:list, nextPageToken:int=None, maxreq:int=5):
         """get data: Note: request is list of dictionary, so be carefull not to pass reference"""
+        if type(requests) is dict:
+            requests = [requests]
+        for req in requests:
+            self._is_valid_request(req)
         body = {}
         for req in requests:
             req['viewId'] = str(self.viewId)
 
-        body["reportRequests"] = requests
+        # use copy to prevent nextPageToken be change of the global var
+        body["reportRequests"] = copy.deepcopy(requests)
         ret = self.service_ga4.reports().batchGet(body=body).execute()
         ##only to get first reports -> first requests
         rowCount = ret['reports'][0]['data']['rowCount']
@@ -62,7 +78,6 @@ class GaData:
             mtr_dtypes = [x['type'].replace("ga:","") for x in 
                     report.get("columnHeader").get("metricHeader").get("metricHeaderEntries")]
             mydic = {'STRING': str, "INTEGER": np.int, "FLOAT": np.float}
-            dim_dtypes = [str for _ in range(len(dim_names))]
             mtr_dtypes = [mydic[x] for x in mtr_dtypes]
             dim_ind = [x['dimensions'] for x in report['data']['rows']]
             mtr_dat = np.array([x['metrics'][0]['values'] for x in report['data']['rows']])
@@ -77,6 +92,7 @@ class GaData:
                 del tmp['date']
             yield tmp
 
+class GaReq():
     @staticmethod
     def get_template():
         """set request parameters"""
@@ -85,7 +101,10 @@ class GaData:
                 'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'yesterday'}],
                 'metrics': [{'expression': 'ga:pageviews'},{'expression': 'ga:users'}],
                 #'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:dimension6'}]}
-                'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:dateHour'},{'name':'ga:deviceCategory'}]}
+                'dimensions': [{'name':'ga:channelGrouping'},
+                               {'name':'ga:dateHour'},
+                               {'name':'ga:deviceCategory'},
+                               {'name':'ga:userGender'}]}
 
 
     @staticmethod
