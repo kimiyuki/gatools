@@ -9,9 +9,27 @@ class SpdData:
         self.service_spd = service_spd
         self.service_drive = service_drive
     
-    def list_spreadsheets(self):
-        """list spreadsheets of your accoujnt"""
-        pass
+    def list_spreadsheets(
+        self, orderBy="recency",
+        q = "mimeType = 'application/vnd.google-apps.spreadsheet'",
+        nextPageToken=None):
+        """list spreadsheets of your accoujnt
+           pageSize can be 1000 in the api"""
+        results = self.service_drive.files().list(
+            pageSize=1000, orderBy=orderBy, pageToken=nextPageToken, q= q,
+            fields="nextPageToken, files(id, name, mimeType, modifiedTime)", 
+        ).execute()
+        items = results.get("files", [])
+        if not items:
+            print("No files found.")
+        else:
+            for item in items:
+                item['modifiedTime'] = pd.to_datetime(item['modifiedTime'])
+                yield item
+        ntoken = results.get('nextPageToken')
+        if ntoken:
+            print('nextToken')
+            yield from self.list_spreadsheets(orderBy=orderBy, nextPageToken=ntoken)
 
     def _is_valid_request(self, req):
         #dimensions is not necessary in google API, though I put it
