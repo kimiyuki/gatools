@@ -15,6 +15,7 @@ except:
 
 from gaData import GaData 
 from gscData import GscData 
+from spdData import SpdData 
 OAUTH_SCOPE = ['https://www.googleapis.com/auth/analytics', 
                'https://www.googleapis.com/auth/analytics.readonly',
                'https://www.googleapis.com/auth/webmasters.readonly',
@@ -50,11 +51,14 @@ class SiteData:
         self.service_ga4 = build('analytics', 'v4', http=http)
         self.service_ga3 = build('analytics', 'v3', http=http)
         self.service_gsc = build('webmasters', 'v3', http=http)
+        self.service_spd = build('sheets', 'v4', http=http)
+        self.service_drv = build('drive', 'v3', http=http)
         assert all([self.service_ga3, self.service_ga4, self.service_gsc]), "credentail error"
         print('ok')
         # should I declare below vars in __init__?
         self.gaData  = GaData(self.service_ga3, self.service_ga4)
         self.gscData = GscData(self.service_gsc)
+        self.spdData = SpdData(self.service_spd, self.service_drv)
         return True 
 
     def _get_cred(self, path):
