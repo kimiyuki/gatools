@@ -14,6 +14,8 @@ ac2 = SiteData("account2.oauth")
 ac2.gaData.viewId = conf['account2']['gaview'][0]['id']
 ac2.gscData._siteUrl = conf['account2']['gsc'][0]['siteurl'] 
 
+sp = ac2.service_spd
+
 def main():
     df1 = pd.concat(ac1.gaData.report(REQ))
     df1.groupby('dateHour').sum()['pageviews'].plot()
