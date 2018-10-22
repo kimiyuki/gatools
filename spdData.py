@@ -8,13 +8,21 @@ class SpdData:
     def __init__(self, service_spd, service_drive):
         self.service_spd = service_spd
         self.service_drive = service_drive
-    
+
+    def grep_spreadsheets(self, query, mime="application/vnd.google-apps.spreadsheet"):
+        """
+        a convinient way to search and list files, mostly spreadsheet.
+        """
+        pass 
+
     def list_spreadsheets(
         self, orderBy="recency",
         q = "mimeType = 'application/vnd.google-apps.spreadsheet'",
         nextPageToken=None):
         """list spreadsheets of your accoujnt
-           pageSize can be 1000 in the api"""
+           pageSize can be 1000 in the api
+           usasge: df = pd.DataFrame(SpdData.list_spreadsheets())
+        """
         results = self.service_drive.files().list(
             pageSize=1000, orderBy=orderBy, pageToken=nextPageToken, q= q,
             fields="nextPageToken, files(id, name, mimeType, modifiedTime)", 
@@ -24,7 +32,7 @@ class SpdData:
             print("No files found.")
         else:
             for item in items:
-                item['modifiedTime'] = pd.to_datetime(item['modifiedTime'])
+                item['modifiedTime'] = pd.Timestamp(item['modifiedTime'])
                 yield item
         ntoken = results.get('nextPageToken')
         if ntoken:
