@@ -1,11 +1,11 @@
-from siteData import SiteData
-from gaData import GaReq
+from gatools.siteData import SiteData
+from gatools.gaData import GaReq
 import yaml
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-conf = yaml.load(open("conf.yaml", "r"))# example: accont.yaml
+conf = yaml.load(open("secret_account.yaml", "r"))# chage: sample_account.yaml
 REQ = GaReq.get_template()
 ac1 = SiteData("account1.oauth")
 ac1.gaData.viewId = conf['account1']['gaview'][0]['id']
@@ -40,7 +40,6 @@ def main():
 
 
 if __name__ == "__main__":
-   #main() 
    pass
 
 

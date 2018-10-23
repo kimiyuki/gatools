@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-import yaml, pathlib
+import yaml 
+from pathlib import Path
 from requests_oauthlib import OAuth2Session
 import pickle
 from google.auth.transport.urllib3 import AuthorizedHttp
@@ -75,7 +76,7 @@ class SiteData:
         return True
 
     def _get_cred(self, path):
-        if pathlib.Path.exists(path):
+        if Path(path).exists():
             self.cred = pickle.load(open(path, 'rb'))
 
         if self.cred is None or self.cred.valid is False:

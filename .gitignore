@@ -102,3 +102,7 @@ ENV/
 
 
 *.dat
+*.oauth
+*.pickle
+Untitled*
+secret*
