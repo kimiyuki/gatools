@@ -22,9 +22,9 @@ try:
 except:
     print("I assume you are not using colab")
 
-from gaData import GaData
-from gscData import GscData
-from spdData import SpdData
+from .gaData import GaData
+from .gscData import GscData
+from .spdData import SpdData
 OAUTH_SCOPE = [
     'https://www.googleapis.com/auth/analytics',
     'https://www.googleapis.com/auth/analytics.readonly',
@@ -32,7 +32,7 @@ OAUTH_SCOPE = [
     'https://www.googleapis.com/auth/spreadsheets',
     'https://www.googleapis.com/auth/drive'
 ]
-# 自分の OAuth ID,SECRETがやるのが望ましいです。
+# it must be preferrable to use another client_id, secret 
 CLIENT_ID = '643412917207-qt8pe5hmntb9dpi5gbis2d3q8aithhhi.apps.googleusercontent.com'
 CLIENT_SECRET = '_UWPT3S0BFH7ONVlzHnNl4ZX'
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'

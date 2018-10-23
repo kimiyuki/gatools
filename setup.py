@@ -1,3 +1,4 @@
+from setuptools import setup
 install_requires = [
         'pandas', 
         'yaml',
