@@ -13,34 +13,41 @@ from apiclient.discovery import build
 from utils.jsonparse import my_dict_df
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+_detail_formatting = "%(relativeCreated)08d[ms] - %(name)s - %(levelname)s - %(processName)-10s - %(threadName)s -\n*** %(message)s"
+logging.basicConfig(
+    level=logging.DEBUG, format=_detail_formatting, filename="log/all.log")
 
 try:
     from google.colab import auth as colab_auth
 except:
     print("I assume you are not using colab")
 
-from gaData import GaData 
-from gscData import GscData 
-from spdData import SpdData 
-OAUTH_SCOPE = ['https://www.googleapis.com/auth/analytics', 
-               'https://www.googleapis.com/auth/analytics.readonly',
-               'https://www.googleapis.com/auth/webmasters.readonly',
-               'https://www.googleapis.com/auth/spreadsheets',
-               'https://www.googleapis.com/auth/drive']
+from gaData import GaData
+from gscData import GscData
+from spdData import SpdData
+OAUTH_SCOPE = [
+    'https://www.googleapis.com/auth/analytics',
+    'https://www.googleapis.com/auth/analytics.readonly',
+    'https://www.googleapis.com/auth/webmasters.readonly',
+    'https://www.googleapis.com/auth/spreadsheets',
+    'https://www.googleapis.com/auth/drive'
+]
 # 自分の OAuth ID,SECRETがやるのが望ましいです。
-CLIENT_ID='643412917207-qt8pe5hmntb9dpi5gbis2d3q8aithhhi.apps.googleusercontent.com'
-CLIENT_SECRET='_UWPT3S0BFH7ONVlzHnNl4ZX'
+CLIENT_ID = '643412917207-qt8pe5hmntb9dpi5gbis2d3q8aithhhi.apps.googleusercontent.com'
+CLIENT_SECRET = '_UWPT3S0BFH7ONVlzHnNl4ZX'
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
-AUTH_URL  = "https://accounts.google.com/o/oauth2/v2/auth"
+AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 TOKEN_URL = "https://www.googleapis.com/oauth2/v4/token"
+
+
 class SiteData:
     """google analytics, google search console data reporter"""
+
     def __init__(self, path=None, newUser=False):
         # Copy your credentials from the console
-        # https://developers.google.com/webmaster-tools/search-console-api-original/v3/ 
+        # https://developers.google.com/webmaster-tools/search-console-api-original/v3/
         #for all scopes
-        self.cred, self.ga3, self.ga4, self.gsc = None,None,None,None
+        self.cred, self.ga3, self.ga4, self.gsc = None, None, None, None
         self.gaData, self.gscData = None, None
         assert path, "path is None: credential filepath is required"
         if newUser:
@@ -53,8 +60,8 @@ class SiteData:
                svc = SiteData(path="x.dat");svd.gaData.viewId=11111')
 
     def build_service(self):
-        self.service_ga3 = build('analytics',  'v3', credentials=self.cred) 
-        self.service_ga4 = build('analytics',  'v4', credentials=self.cred) 
+        self.service_ga3 = build('analytics', 'v3', credentials=self.cred)
+        self.service_ga4 = build('analytics', 'v4', credentials=self.cred)
         self.service_gsc = build('webmasters', 'v3', credentials=self.cred)
         self.service_spd = build('sheets', 'v4', credentials=self.cred)
         self.service_drv = build('drive', 'v3', credentials=self.cred)
@@ -62,32 +69,34 @@ class SiteData:
                "credentail error"
         print('ok')
         # should I declare below vars in __init__?
-        self.gaData  = GaData(self.service_ga3, self.service_ga4)
+        self.gaData = GaData(self.service_ga3, self.service_ga4)
         self.gscData = GscData(self.service_gsc)
         self.spdData = SpdData(self.service_spd, self.service_drv)
-        return True 
+        return True
 
     def _get_cred(self, path):
         if os.path.exists(path):
             self.cred = pickle.load(open(path, 'rb'))
-    
+
         if self.cred is None or self.cred.valid is False:
             self._get_code_auth(path)
 
-        pickle.dump(self.cred, open(path,'wb')) 
-        
+        pickle.dump(self.cred, open(path, 'wb'))
+
     def _get_code_auth(self, path):
         auth = OAuth2Session(
-            client_id=CLIENT_ID, scope=OAUTH_SCOPE,
-            redirect_uri=REDIRECT_URI, auto_refresh_url=TOKEN_URL)
+            client_id=CLIENT_ID,
+            scope=OAUTH_SCOPE,
+            redirect_uri=REDIRECT_URI,
+            auto_refresh_url=TOKEN_URL)
         # offline for refresh token
         # force to always make user click authorize
         authorization_url, state = auth.authorization_url(
             AUTH_URL, access_type="offline", prompt="select_account")
-        print( f"auth process state:{state}" )
-        print ('Please go here and authorize,', authorization_url)
+        print(f"auth process state:{state}")
+        print('Please go here and authorize,', authorization_url)
         try:
-            code = colab_auth.getpass.getpass() 
+            code = colab_auth.getpass.getpass()
         except:
             code = input('paste the code: ')
         self._authorize(auth, code.strip())
@@ -97,7 +106,6 @@ class SiteData:
         from google_auth_oauthlib.helpers import credentials_from_session
         self.cred = credentials_from_session(auth)
 
-    
     def ga_account_summary(self):
         return self.gaData.get_account_summary()
 
@@ -108,7 +116,4 @@ class SiteData:
         return self.gscData.list_sites()
 
     def gsc_report(self):
-        return self.gscData.search_analyics() 
-
-
-    
+        return self.gscData.search_analyics()
