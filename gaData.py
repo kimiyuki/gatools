@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from pandas.io.json import json_normalize
 import copy
 
 class GaData:    
@@ -7,7 +8,18 @@ class GaData:
         self.service_ga3 = service_ga3
         self.service_ga4 = service_ga4
         self.viewId = None
-    
+
+    def retrieve_imported_data_cat(self,accountId=None,webPropertyId=None): 
+        """for only catalog info. 
+        Google does not provide an api for downloading"""
+        jsn = (self.service_ga3.management()
+               .customDataSources()
+               .list(accountId=accountId, webPropertyId=webPropertyId).execute())
+        cat = json_normalize(jsn['items'])
+        print(cat[['id', 'name']])
+        return cat
+
+
     def get_account_summary(self):
         """get google analytics account summary in profile level"""
         jsn = self.service_ga3.management().accountSummaries().list().execute()
