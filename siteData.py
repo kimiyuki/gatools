@@ -23,6 +23,7 @@ OAUTH_SCOPE = ['https://www.googleapis.com/auth/analytics',
                'https://www.googleapis.com/auth/drive']
 CLIENT_ID='643412917207-qt8pe5hmntb9dpi5gbis2d3q8aithhhi.apps.googleusercontent.com'
 CLIENT_SECRET='_UWPT3S0BFH7ONVlzHnNl4ZX'
+REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 class SiteData:
     """google analytics, google search console data reporter"""
     def __init__(self, path=None, newUser=False):
@@ -32,7 +33,7 @@ class SiteData:
         self.CLIENT_SECRET = CLIENT_SECRET
         #https://developers.google.com/webmaster-tools/search-console-api-original/v3/ for all scopes
         self.OAUTH_SCOPE = OAUTH_SCOPE
-        self.REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+        self.REDIRECT_URI = REDIRECT_URI 
         self.cred, self.ga3, self.ga4, self.gsc = None,None,None,None
         self.gaData, self.gscData = None, None
         assert path, "path is None: credential filepath is required"
