@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from typing import List
 
 class GscData:
     """Google Search Console reporter"""
@@ -7,7 +8,10 @@ class GscData:
         self.service_gsc = service_gsc
         self._siteUrl = None
 
-    def list_sites(self):
+    def list_sites(self) -> pd.DataFrame: 
+        """ 
+        return DF(permissionLevel, siteUrl in dataFrame of the google search console account
+        """
         tmp = self.service_gsc.sites().list().execute()
         if tmp.get('siteEntry'):
             return pd.DataFrame(tmp['siteEntry'])
@@ -16,11 +20,16 @@ class GscData:
             return None
 
 
-    def search_analyics(self, url:str=None, start_date=None, end_date=None):
+    def search_analyics(self, url:str=None, start_date=None, end_date=None) -> pd.DataFrame:
         """
         search analytics data
         thanks for code https://note.nkmk.me/python-search-console-api-download/
-        TODO implements paging request
+        :returns: pandas dataframe
+        
+        .. todo::
+        
+         implements paging request
+
         """
         if url is None:
             url = self._siteUrl

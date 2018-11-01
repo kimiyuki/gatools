@@ -2,6 +2,38 @@ import numpy as np
 import pandas as pd
 from pandas.io.json import json_normalize
 import copy
+import functools
+from dataclasses import dataclass, field
+from typing import List, Any
+import pickle
+
+@dataclass
+class GaRequest:
+    """
+    .. todo::
+
+       add segments parameters
+    """
+    pageToken:int = 0
+    dateRange: list = field(default_factory=lambda: ['7daysago', 'yesterday'])
+    metrics:   list = field(default_factory=lambda: ['pageviews','users'])
+    dimensions:list = field(default_factory=lambda: ['deviceCategory','date'])
+    viewId: str = ''
+    pageSize: str = 1000
+    #TODO segments
+
+    def get(self):
+        return {
+                'pageToken': str(self.pageToken),
+                'dateRanges': [{'startDate': self.dateRange[0],
+                                'endDate': self.dateRange[1]}],
+                'metrics': [{'expression': 'ga:'+x} for x in self.metrics],
+                'dimensions': [{'name':'ga:'+x} for x in self.dimensions],
+                'viewId': self.viewId,
+                'pageSize': self.pageSize,
+        }
+            
+
 
 class GaData:    
     def __init__(self, service_ga3, service_ga4):
@@ -10,8 +42,10 @@ class GaData:
         self.viewId = None
 
     def retrieve_imported_data_cat(self,accountId=None,webPropertyId=None): 
-        """for only catalog info. 
-        Google does not provide an api for downloading"""
+        """
+        for only catalog info. 
+        Google does not provide an api for downloading
+        """
         jsn = (self.service_ga3.management()
                .customDataSources()
                .list(accountId=accountId, webPropertyId=webPropertyId).execute())
@@ -21,10 +55,14 @@ class GaData:
 
 
     def get_account_summary(self):
-        """get google analytics account summary in profile level"""
+        """
+        get google analytics account summary in profile level
+        """
         jsn = self.service_ga3.management().accountSummaries().list().execute()
         wp = pd.io.json.json_normalize(
-                jsn['items'], record_path='webProperties', meta=['id','name'], meta_prefix='ac_'
+                jsn['items'], 
+                record_path='webProperties', meta=['id','name'],
+                meta_prefix='ac_'
              ).drop(['kind','profiles'], axis=1)
         wp.set_index('id', inplace=True)
         profiles = pd.io.json.json_normalize(
@@ -45,44 +83,54 @@ class GaData:
             raise ValueError
         return True
 
-    def report(self, requests:list, nextPageToken:int=None, maxreq:int=5):
+    #@functools.lru_cache(maxsize=300)
+    #def __report(self, viewid, requests:list, nextPageToken:int=None, maxreq:int=5):
+    #    return pd.concat(self._report(viewid, requests, nextPageToken, maxreq))
+
+    def report(self, 
+        viewId=None, 
+        requests:list=[GaRequest],
+        maxreq:int=5): 
         """get data: Note: request is list of dictionary, so be carefull not to pass reference"""
-        if type(requests) is dict:
-            requests = [requests]
+
         for req in requests:
-            self._is_valid_request(req)
-        body = {}
+            pass
+            #self._is_valid_request(req) #maybe i do not need it any more
         for req in requests:
-            req['viewId'] = str(self.viewId)
+            req.viewId = str(viewId)
 
         # use copy to prevent nextPageToken be change of the global var
-        body["reportRequests"] = copy.deepcopy(requests)
-        ret = self.service_ga4.reports().batchGet(body=body).execute()
+        body = {"reportRequests": copy.deepcopy([x.get() for x in requests])}
+        res = self.service_ga4.reports().batchGet(body=body).execute()
+        pickle.dump(res, open("log/gadata_res.pickle", 'wb'))
+        #logging.log(ret)
         ##only to get first reports -> first requests
-        rowCount = ret['reports'][0]['data']['rowCount']
-        if not nextPageToken: print(f"rowCount:{rowCount}") 
-        yield from self._changeToDataFrame(ret['reports'])
-        if 'nextPageToken' not in ret['reports'][-1]:
-          return 
+        rowCount = res['reports'][0]['data']['rowCount']
+        if requests[0].pageToken == 0:
+            print(f"total rows: {rowCount}")
+        yield from self._changeToDataFrame(res['reports'])
+        if 'nextPageToken' not in res['reports'][-1]:
+            print(f"get:{rowCount} rows")
+            return 
         else:
-          nextPageToken = int(ret['reports'][-1]['nextPageToken'])
           #make requests object again with requests[0]
-          requests = [requests[0]]
-          requests[0]['pageSize'] = 10000
-          requests[0]['pageToken'] = str(nextPageToken) #need to be STRING!
-          print("nextPageToken:{}".format(nextPageToken))
+          newReq = copy.deepcopy(requests[0])
+          newReq.pageSize = 10000
+          nextPageToken = int(res['reports'][-1]['nextPageToken'])
+          newReq.pageToken = str(nextPageToken)
+          requests = [newReq]
           while nextPageToken + 10000 < rowCount and len(requests) < maxreq:
-             new_req = requests[0].copy()
+             req = copy.deepcopy(newReq)
              nextPageToken = nextPageToken + 10000
-             new_req['pageToken'] = str(nextPageToken) 
-             requests.append(new_req)
-             print("nextPageToken:{}".format(nextPageToken))
-          print("batch get:{} requests".format(len(requests)))
-          yield from self.report(requests, nextPageToken, maxreq=maxreq)
+             req.pageToken = str(nextPageToken)
+             requests.append(req)
+          print(f"batch get:{len(requests)}requests: \
+                 {','.join([x.pageToken for x in requests])}")
+          yield from self.report(viewId, requests, maxreq=maxreq)
 
     def _changeToDataFrame(self, reports):
         for report in reports:
-            print(f"row num: {len(report['data']['rows'])}")
+            #print(f"row num: {len(report['data']['rows'])}")
             dim_names = [x.replace("ga:","") for x in
                     report.get("columnHeader").get("dimensions")]
             mtr_names = [x['name'].replace("ga:","") for x in 
@@ -96,37 +144,13 @@ class GaData:
             tmp = pd.concat([
                 pd.DataFrame(dim_ind, columns=dim_names), 
                 pd.DataFrame(mtr_dat.astype(int),columns=mtr_names)], axis=1)
-            if 'dateHour' in tmp.columns:
-                tmp.index = pd.to_datetime(tmp['dateHour'], format="%Y%m%d%H")
-                del tmp['dateHour']
             if 'date' in tmp.columns:
                 tmp.index = pd.to_datetime(tmp['date'], format="%Y%m%d")
                 del tmp['date']
+            if 'dateHour' in tmp.columns:
+                tmp.index = pd.to_datetime(tmp['dateHour'], format="%Y%m%d%H")
+                del tmp['dateHour']
             yield tmp
 
-class GaReq():
-    @staticmethod
-    def get_template():
-        """set request parameters"""
-        return {
-                'pageToken': '0',
-                'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'yesterday'}],
-                'metrics': [{'expression': 'ga:pageviews'},{'expression': 'ga:users'}],
-                #'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:dimension6'}]}
-                'dimensions': [{'name':'ga:channelGrouping'},
-                               {'name':'ga:dateHour'},
-                               {'name':'ga:deviceCategory'},
-                               {'name':'ga:userGender'}]}
 
-
-    @staticmethod
-    def get_template_seg():
-        """set reqeust parameters about segment data""" 
-        return {
-            'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'yesterday'}],
-            'metrics': [{'expression': 'ga:pageviews'},{'expression': 'ga:users'}],
-            #'dimensions': [{'name':'ga:channelGrouping'},{'name':'ga:dimension6'}]}
-            'dimensions': [{'name':'ga:deviceCategory'},{'name':'ga:segment'}],
-            'segments': [{'segmentId': "sessions::condition::ga:medium=~organic"}]
-        }
 

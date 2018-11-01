@@ -5,6 +5,8 @@ from pathlib import Path
 from requests_oauthlib import OAuth2Session
 import pickle
 from google.auth.transport.urllib3 import AuthorizedHttp
+import google.auth.transport.requests
+import requests
 import urllib3
 from apiclient import errors
 import httplib2shim
@@ -55,12 +57,12 @@ class SiteData:
             self._get_code_auth(path)
         else:
             self._get_cred(path)
-        self.build_service()
+        self._build_service()
         assert self.cred.valid, "credential is invalid"
         print('you need GA viewID like,\
                svc = SiteData(path="x.dat");svd.gaData.viewId=11111')
 
-    def build_service(self):
+    def _build_service(self):
         self.service_ga3 = build('analytics', 'v3', credentials=self.cred)
         self.service_ga4 = build('analytics', 'v4', credentials=self.cred)
         self.service_gsc = build('webmasters', 'v3', credentials=self.cred)
@@ -78,7 +80,13 @@ class SiteData:
     def _get_cred(self, path):
         if Path(path).exists():
             self.cred = pickle.load(open(path, 'rb'))
-
+        # https://google-auth.readthedocs.io/en/latest/reference/google.auth.transport.requests.html
+        if self.cred and self.cred.expired:
+            self.cred = google.oauth2.credentials.Credentials(
+                token=self.cred.token, refresh_token=self.cred.refresh_token,
+                token_uri=TOKEN_URL, client_id=CLIENT_ID,client_secret=CLIENT_SECRET
+            )
+            print('refreshed')
         if self.cred is None or self.cred.valid is False:
             self._get_code_auth(path)
 
@@ -105,13 +113,15 @@ class SiteData:
     def _authorize(self, auth, code):
         auth.fetch_token(TOKEN_URL, code=code, client_secret=CLIENT_SECRET)
         from google_auth_oauthlib.helpers import credentials_from_session
+        #TODO detect why return value does not include client_id, sercet, token_uri
+        # temporarily I use google.oauth2.credentials.Credentials constructor instead.
         self.cred = credentials_from_session(auth)
 
     def ga_account_summary(self):
         return self.gaData.get_account_summary()
 
-    def ga_report(self, requests, nextPageToken=None, maxreq=5):
-        return self.gaData.report(requests, nextPageToken, maxreq)
+    def ga_report(self, viewId, requests, nextPageToken=None, maxreq=5):
+        return self.gaData.report(viewId, requests, nextPageToken, maxreq)
 
     def gsc_list_sites(self):
         return self.gscData.list_sites()
