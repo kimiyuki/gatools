@@ -106,3 +106,6 @@ ENV/
 *.pickle
 Untitled*
 secret*
+docs/_build
+docs/log
+*.bat
