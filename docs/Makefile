@@ -15,7 +15,7 @@ help:
 
 sphinx-apidoc:
 	sphinx-apidoc -f -e -o ./api -M ../gatools *.py
-	rm api/modules.rst
+	rm ./api/modules.rst
 
 
 # Catch-all target: route all unknown targets to Sphinx using the new
