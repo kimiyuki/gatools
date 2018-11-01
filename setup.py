@@ -5,7 +5,7 @@ install_requires = [
         'urllib3',
         'google-auth',
         'google-auth-httplib2',
-        'google-api-pythonm-client'
+        'google-api-python-client'
 
         ]
 setup(
