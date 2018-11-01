@@ -109,3 +109,4 @@ secret*
 docs/_build
 docs/log
 *.bat
+.vscode
