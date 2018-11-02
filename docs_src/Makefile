@@ -2,7 +2,8 @@
 #
 
 # You can set these variables from the command line.
-SPHINXOPTS    =
+SPHINXOPTS    = -E -P -a
+# http://www.sphinx-doc.org/ja/stable/man/sphinx-build.html#options
 SPHINXBUILD   = sphinx-build
 SOURCEDIR     = .
 BUILDDIR      = _build
@@ -23,3 +24,5 @@ sphinx-apidoc:
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	@echo "done"
+	@cp -Tr ./_build/html ../docs
+	@touch ../docs/.nojekyll
