@@ -1,0 +1,331 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>gatools.siteData &mdash; gatools alpha 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> gatools
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/gatools.html">gatools package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/utils.html">utils package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">gatools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>gatools.siteData</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for gatools.siteData</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">yaml</span> 
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">requests_oauthlib</span> <span class="k">import</span> <span class="n">OAuth2Session</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">google.auth.transport.urllib3</span> <span class="k">import</span> <span class="n">AuthorizedHttp</span>
+<span class="kn">import</span> <span class="nn">google.auth.transport.requests</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">urllib3</span>
+<span class="kn">from</span> <span class="nn">apiclient</span> <span class="k">import</span> <span class="n">errors</span>
+<span class="kn">import</span> <span class="nn">httplib2shim</span>
+<span class="n">httplib2shim</span><span class="o">.</span><span class="n">patch</span><span class="p">()</span>
+<span class="kn">from</span> <span class="nn">apiclient</span> <span class="k">import</span> <span class="n">errors</span>
+<span class="kn">from</span> <span class="nn">apiclient.discovery</span> <span class="k">import</span> <span class="n">build</span>
+<span class="kn">from</span> <span class="nn">utils.jsonparse</span> <span class="k">import</span> <span class="n">my_dict_df</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">_detail_formatting</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%(relativeCreated)08d</span><span class="s2">[ms] - </span><span class="si">%(name)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> </span><span class="se">\</span>
+<span class="s2">                      - </span><span class="si">%(processName)-10s</span><span class="s2"> - </span><span class="si">%(threadName)s</span><span class="s2"> -</span><span class="se">\n</span><span class="s2">*** </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">_detail_formatting</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;log/all.log&quot;</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">google.colab</span> <span class="k">import</span> <span class="n">auth</span> <span class="k">as</span> <span class="n">colab_auth</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;I assume you are not using colab&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">.gaData</span> <span class="k">import</span> <span class="n">GaData</span>
+<span class="kn">from</span> <span class="nn">.gscData</span> <span class="k">import</span> <span class="n">GscData</span>
+<span class="kn">from</span> <span class="nn">.spdData</span> <span class="k">import</span> <span class="n">SpdData</span>
+<span class="n">OAUTH_SCOPE</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;https://www.googleapis.com/auth/analytics&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://www.googleapis.com/auth/analytics.readonly&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://www.googleapis.com/auth/webmasters.readonly&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://www.googleapis.com/auth/spreadsheets&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://www.googleapis.com/auth/drive&#39;</span>
+<span class="p">]</span>
+<span class="c1"># it must be preferrable to use another client_id, secret </span>
+<span class="n">CLIENT_ID</span> <span class="o">=</span> <span class="s1">&#39;643412917207-qt8pe5hmntb9dpi5gbis2d3q8aithhhi.apps.googleusercontent.com&#39;</span>
+<span class="n">CLIENT_SECRET</span> <span class="o">=</span> <span class="s1">&#39;_UWPT3S0BFH7ONVlzHnNl4ZX&#39;</span>
+<span class="n">REDIRECT_URI</span> <span class="o">=</span> <span class="s1">&#39;urn:ietf:wg:oauth:2.0:oob&#39;</span>
+<span class="n">AUTH_URL</span> <span class="o">=</span> <span class="s2">&quot;https://accounts.google.com/o/oauth2/v2/auth&quot;</span>
+<span class="n">TOKEN_URL</span> <span class="o">=</span> <span class="s2">&quot;https://www.googleapis.com/oauth2/v4/token&quot;</span>
+
+
+<div class="viewcode-block" id="SiteData"><a class="viewcode-back" href="../../api/gatools.html#gatools.siteData.SiteData">[docs]</a><span class="k">class</span> <span class="nc">SiteData</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;google analytics, google search console data reporter&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">newUser</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># Copy your credentials from the console</span>
+        <span class="c1"># https://developers.google.com/webmaster-tools/search-console-api-original/v3/</span>
+        <span class="c1">#for all scopes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cred</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ga3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ga4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gsc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gaData</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gscData</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;path is None: credential filepath is required&quot;</span>
+        <span class="k">if</span> <span class="n">newUser</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_code_auth</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_cred</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_service</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">cred</span><span class="o">.</span><span class="n">valid</span><span class="p">,</span> <span class="s2">&quot;credential is invalid&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;you need GA viewID like,</span><span class="se">\</span>
+<span class="s1">               svc = SiteData(path=&quot;x.dat&quot;);svd.gaData.viewId=11111&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_build_service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service_ga3</span> <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="s1">&#39;analytics&#39;</span><span class="p">,</span> <span class="s1">&#39;v3&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cred</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service_ga4</span> <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="s1">&#39;analytics&#39;</span><span class="p">,</span> <span class="s1">&#39;v4&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cred</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service_gsc</span> <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="s1">&#39;webmasters&#39;</span><span class="p">,</span> <span class="s1">&#39;v3&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cred</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service_spd</span> <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="s1">&#39;sheets&#39;</span><span class="p">,</span> <span class="s1">&#39;v4&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cred</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service_drv</span> <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="s1">&#39;drive&#39;</span><span class="p">,</span> <span class="s1">&#39;v3&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cred</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">service_ga3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_ga4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_gsc</span><span class="p">]),</span> \
+               <span class="s2">&quot;credentail error&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ok&#39;</span><span class="p">)</span>
+        <span class="c1"># should I declare below vars in __init__?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gaData</span> <span class="o">=</span> <span class="n">GaData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">service_ga3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_ga4</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gscData</span> <span class="o">=</span> <span class="n">GscData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">service_gsc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spdData</span> <span class="o">=</span> <span class="n">SpdData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">service_spd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_drv</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_get_cred</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cred</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+        <span class="c1"># https://google-auth.readthedocs.io/en/latest/reference/google.auth.transport.requests.html</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cred</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cred</span><span class="o">.</span><span class="n">expired</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cred</span> <span class="o">=</span> <span class="n">google</span><span class="o">.</span><span class="n">oauth2</span><span class="o">.</span><span class="n">credentials</span><span class="o">.</span><span class="n">Credentials</span><span class="p">(</span>
+                <span class="n">token</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cred</span><span class="o">.</span><span class="n">token</span><span class="p">,</span> <span class="n">refresh_token</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cred</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">,</span>
+                <span class="n">token_uri</span><span class="o">=</span><span class="n">TOKEN_URL</span><span class="p">,</span> <span class="n">client_id</span><span class="o">=</span><span class="n">CLIENT_ID</span><span class="p">,</span><span class="n">client_secret</span><span class="o">=</span><span class="n">CLIENT_SECRET</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;refreshed&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cred</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cred</span><span class="o">.</span><span class="n">valid</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_code_auth</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cred</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_get_code_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="n">OAuth2Session</span><span class="p">(</span>
+            <span class="n">client_id</span><span class="o">=</span><span class="n">CLIENT_ID</span><span class="p">,</span>
+            <span class="n">scope</span><span class="o">=</span><span class="n">OAUTH_SCOPE</span><span class="p">,</span>
+            <span class="n">redirect_uri</span><span class="o">=</span><span class="n">REDIRECT_URI</span><span class="p">,</span>
+            <span class="n">auto_refresh_url</span><span class="o">=</span><span class="n">TOKEN_URL</span><span class="p">)</span>
+        <span class="c1"># offline for refresh token</span>
+        <span class="c1"># force to always make user click authorize</span>
+        <span class="n">authorization_url</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">authorization_url</span><span class="p">(</span>
+            <span class="n">AUTH_URL</span><span class="p">,</span> <span class="n">access_type</span><span class="o">=</span><span class="s2">&quot;offline&quot;</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;select_account&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;auth process state:</span><span class="si">{state}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Please go here and authorize,&#39;</span><span class="p">,</span> <span class="n">authorization_url</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="n">colab_auth</span><span class="o">.</span><span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;paste the code: &#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_authorize</span><span class="p">(</span><span class="n">auth</span><span class="p">,</span> <span class="n">code</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_authorize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+        <span class="n">auth</span><span class="o">.</span><span class="n">fetch_token</span><span class="p">(</span><span class="n">TOKEN_URL</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="n">code</span><span class="p">,</span> <span class="n">client_secret</span><span class="o">=</span><span class="n">CLIENT_SECRET</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">google_auth_oauthlib.helpers</span> <span class="k">import</span> <span class="n">credentials_from_session</span>
+        <span class="c1">#TODO detect why return value does not include client_id, sercet, token_uri</span>
+        <span class="c1"># temporarily I use google.oauth2.credentials.Credentials constructor instead.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cred</span> <span class="o">=</span> <span class="n">credentials_from_session</span><span class="p">(</span><span class="n">auth</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SiteData.ga_account_summary"><a class="viewcode-back" href="../../api/gatools.html#gatools.siteData.SiteData.ga_account_summary">[docs]</a>    <span class="k">def</span> <span class="nf">ga_account_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gaData</span><span class="o">.</span><span class="n">get_account_summary</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SiteData.ga_report"><a class="viewcode-back" href="../../api/gatools.html#gatools.siteData.SiteData.ga_report">[docs]</a>    <span class="k">def</span> <span class="nf">ga_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">viewId</span><span class="p">,</span> <span class="n">requests</span><span class="p">,</span> <span class="n">nextPageToken</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxreq</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gaData</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">viewId</span><span class="p">,</span> <span class="n">requests</span><span class="p">,</span> <span class="n">nextPageToken</span><span class="p">,</span> <span class="n">maxreq</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SiteData.gsc_list_sites"><a class="viewcode-back" href="../../api/gatools.html#gatools.siteData.SiteData.gsc_list_sites">[docs]</a>    <span class="k">def</span> <span class="nf">gsc_list_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gscData</span><span class="o">.</span><span class="n">list_sites</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SiteData.gsc_report"><a class="viewcode-back" href="../../api/gatools.html#gatools.siteData.SiteData.gsc_report">[docs]</a>    <span class="k">def</span> <span class="nf">gsc_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gscData</span><span class="o">.</span><span class="n">search_analyics</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, kimiyuki shirai
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
