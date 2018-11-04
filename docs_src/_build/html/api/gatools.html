@@ -1,0 +1,391 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>gatools package &mdash; gatools alpha 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="utils" href="modules.html" />
+    <link rel="prev" title="Welcome to gatools’s documentation!" href="../index.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> gatools
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">gatools package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-gatools.gaData">gatools.gaData module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-gatools.gscData">gatools.gscData module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-gatools.siteData">gatools.siteData module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-gatools.spdData">gatools.spdData module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">utils package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.DimMetrics.html">utils.DimMetrics module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.jsonparse.html">utils.jsonparse module</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gatools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>gatools package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/gatools.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-gatools">
+<span id="gatools-package"></span><h1>gatools package<a class="headerlink" href="#module-gatools" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-gatools.gaData">
+<span id="gatools-gadata-module"></span><h2>gatools.gaData module<a class="headerlink" href="#module-gatools.gaData" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gatools.gaData.GaData">
+<em class="property">class </em><code class="descclassname">gatools.gaData.</code><code class="descname">GaData</code><span class="sig-paren">(</span><em>service_ga3</em>, <em>service_ga4</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/gaData.html#GaData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.gaData.GaData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="gatools.gaData.GaData.get_account_summary">
+<code class="descname">get_account_summary</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/gaData.html#GaData.get_account_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.gaData.GaData.get_account_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>get google analytics account summary in profile level</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatools.gaData.GaData.report">
+<code class="descname">report</code><span class="sig-paren">(</span><em>viewId=None, requests: list = [&lt;class 'gatools.gaData.GaRequest'&gt;], maxreq: int = 5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/gaData.html#GaData.report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.gaData.GaData.report" title="Permalink to this definition">¶</a></dt>
+<dd><p>get data: Note: request is list of dictionary, so be carefull not to pass reference</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatools.gaData.GaData.retrieve_imported_data_cat">
+<code class="descname">retrieve_imported_data_cat</code><span class="sig-paren">(</span><em>accountId=None</em>, <em>webPropertyId=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/gaData.html#GaData.retrieve_imported_data_cat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.gaData.GaData.retrieve_imported_data_cat" title="Permalink to this definition">¶</a></dt>
+<dd><p>for only catalog info. 
+Google does not provide an api for downloading</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gatools.gaData.GaRequest">
+<em class="property">class </em><code class="descclassname">gatools.gaData.</code><code class="descname">GaRequest</code><span class="sig-paren">(</span><em>pageToken: int = 0</em>, <em>dateRange: list = &lt;factory&gt;</em>, <em>metrics: list = &lt;factory&gt;</em>, <em>dimensions: list = &lt;factory&gt;</em>, <em>viewId: str = ''</em>, <em>pageSize: str = 1000</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/gaData.html#GaRequest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.gaData.GaRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">add segments parameters</p>
+</div>
+<dl class="method">
+<dt id="gatools.gaData.GaRequest.get">
+<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/gaData.html#GaRequest.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.gaData.GaRequest.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatools.gaData.GaRequest.pageSize">
+<code class="descname">pageSize</code><em class="property"> = 1000</em><a class="headerlink" href="#gatools.gaData.GaRequest.pageSize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatools.gaData.GaRequest.pageToken">
+<code class="descname">pageToken</code><em class="property"> = 0</em><a class="headerlink" href="#gatools.gaData.GaRequest.pageToken" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatools.gaData.GaRequest.viewId">
+<code class="descname">viewId</code><em class="property"> = ''</em><a class="headerlink" href="#gatools.gaData.GaRequest.viewId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-gatools.gscData">
+<span id="gatools-gscdata-module"></span><h2>gatools.gscData module<a class="headerlink" href="#module-gatools.gscData" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gatools.gscData.GscData">
+<em class="property">class </em><code class="descclassname">gatools.gscData.</code><code class="descname">GscData</code><span class="sig-paren">(</span><em>service_gsc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/gscData.html#GscData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.gscData.GscData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Google Search Console reporter</p>
+<dl class="method">
+<dt id="gatools.gscData.GscData.list_sites">
+<code class="descname">list_sites</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="reference internal" href="../_modules/gatools/gscData.html#GscData.list_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.gscData.GscData.list_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>return DF(permissionLevel, siteUrl in dataFrame of the google search console account</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatools.gscData.GscData.search_analyics">
+<code class="descname">search_analyics</code><span class="sig-paren">(</span><em>url: str = None</em>, <em>start_date=None</em>, <em>end_date=None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="reference internal" href="../_modules/gatools/gscData.html#GscData.search_analyics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.gscData.GscData.search_analyics" title="Permalink to this definition">¶</a></dt>
+<dd><p>search analytics data
+thanks for code <a class="reference external" href="https://note.nkmk.me/python-search-console-api-download/">https://note.nkmk.me/python-search-console-api-download/</a>
+:returns: pandas dataframe</p>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">implements paging request</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-gatools.siteData">
+<span id="gatools-sitedata-module"></span><h2>gatools.siteData module<a class="headerlink" href="#module-gatools.siteData" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gatools.siteData.SiteData">
+<em class="property">class </em><code class="descclassname">gatools.siteData.</code><code class="descname">SiteData</code><span class="sig-paren">(</span><em>path=None</em>, <em>newUser=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/siteData.html#SiteData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.siteData.SiteData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>google analytics, google search console data reporter</p>
+<dl class="method">
+<dt id="gatools.siteData.SiteData.ga_account_summary">
+<code class="descname">ga_account_summary</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/siteData.html#SiteData.ga_account_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.siteData.SiteData.ga_account_summary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatools.siteData.SiteData.ga_report">
+<code class="descname">ga_report</code><span class="sig-paren">(</span><em>viewId</em>, <em>requests</em>, <em>nextPageToken=None</em>, <em>maxreq=5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/siteData.html#SiteData.ga_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.siteData.SiteData.ga_report" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatools.siteData.SiteData.gsc_list_sites">
+<code class="descname">gsc_list_sites</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/siteData.html#SiteData.gsc_list_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.siteData.SiteData.gsc_list_sites" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatools.siteData.SiteData.gsc_report">
+<code class="descname">gsc_report</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/siteData.html#SiteData.gsc_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.siteData.SiteData.gsc_report" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-gatools.spdData">
+<span id="gatools-spddata-module"></span><h2>gatools.spdData module<a class="headerlink" href="#module-gatools.spdData" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gatools.spdData.Cell">
+<em class="property">class </em><code class="descclassname">gatools.spdData.</code><code class="descname">Cell</code><span class="sig-paren">(</span><em>title: str</em>, <em>value: Any</em>, <em>type: str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/spdData.html#Cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.spdData.Cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="gatools.spdData.Sheet">
+<em class="property">class </em><code class="descclassname">gatools.spdData.</code><code class="descname">Sheet</code><span class="sig-paren">(</span><em>title: str, id: str, cells: List[gatools.spdData.Cell]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/spdData.html#Sheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.spdData.Sheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="gatools.spdData.SpdData">
+<em class="property">class </em><code class="descclassname">gatools.spdData.</code><code class="descname">SpdData</code><span class="sig-paren">(</span><em>service_spd</em>, <em>service_drive</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/spdData.html#SpdData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.spdData.SpdData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="gatools.spdData.SpdData.get_spreadsheet">
+<code class="descname">get_spreadsheet</code><span class="sig-paren">(</span><em>id: str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/spdData.html#SpdData.get_spreadsheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.spdData.SpdData.get_spreadsheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>return spreadsheet name, id, list of sheets props</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatools.spdData.SpdData.grep_spreadsheets">
+<code class="descname">grep_spreadsheets</code><span class="sig-paren">(</span><em>query</em>, <em>mime='application/vnd.google-apps.spreadsheet'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/spdData.html#SpdData.grep_spreadsheets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.spdData.SpdData.grep_spreadsheets" title="Permalink to this definition">¶</a></dt>
+<dd><p>a convinient way to search and list files, mostly spreadsheet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatools.spdData.SpdData.list_spreadsheets">
+<code class="descname">list_spreadsheets</code><span class="sig-paren">(</span><em>orderBy='recency'</em>, <em>q=&quot;mimeType = 'application/vnd.google-apps.spreadsheet'&quot;</em>, <em>nextPageToken=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/spdData.html#SpdData.list_spreadsheets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.spdData.SpdData.list_spreadsheets" title="Permalink to this definition">¶</a></dt>
+<dd><p>list spreadsheets of your accoujnt
+pageSize can be 1000 in the api
+usasge: df = pd.DataFrame(SpdData.list_spreadsheets())</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gatools.spdData.SpreadSheet">
+<em class="property">class </em><code class="descclassname">gatools.spdData.</code><code class="descname">SpreadSheet</code><span class="sig-paren">(</span><em>title: str, id: str, sheets: List[gatools.spdData.Sheet]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gatools/spdData.html#SpreadSheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatools.spdData.SpreadSheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="modules.html" class="btn btn-neutral float-right" title="utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../index.html" class="btn btn-neutral" title="Welcome to gatools’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, kimiyuki shirai
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
