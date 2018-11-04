@@ -82,7 +82,10 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/gatools.html">gatools package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/utils.html">utils package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/utils.DimMetrics.html">utils.DimMetrics module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/utils.jsonparse.html">utils.jsonparse module</a></li>
 </ul>
 
             
@@ -164,15 +167,12 @@
 <span class="kn">from</span> <span class="nn">utils.jsonparse</span> <span class="k">import</span> <span class="n">my_dict_df</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="n">_detail_formatting</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%(relativeCreated)08d</span><span class="s2">[ms] - </span><span class="si">%(name)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> </span><span class="se">\</span>
-<span class="s2">                      - </span><span class="si">%(processName)-10s</span><span class="s2"> - </span><span class="si">%(threadName)s</span><span class="s2"> -</span><span class="se">\n</span><span class="s2">*** </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
-<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
-    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">_detail_formatting</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;log/all.log&quot;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">google.colab</span> <span class="k">import</span> <span class="n">auth</span> <span class="k">as</span> <span class="n">colab_auth</span>
 <span class="k">except</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;I assume you are not using colab&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;I assume you are not using colab&quot;</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">.gaData</span> <span class="k">import</span> <span class="n">GaData</span>
 <span class="kn">from</span> <span class="nn">.gscData</span> <span class="k">import</span> <span class="n">GscData</span>
@@ -219,7 +219,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">service_drv</span> <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="s1">&#39;drive&#39;</span><span class="p">,</span> <span class="s1">&#39;v3&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cred</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">all</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">service_ga3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_ga4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_gsc</span><span class="p">]),</span> \
                <span class="s2">&quot;credentail error&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ok&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;ga api3, ga api4, gsc, sheet, drive service are built&#39;</span><span class="p">)</span> 
         <span class="c1"># should I declare below vars in __init__?</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gaData</span> <span class="o">=</span> <span class="n">GaData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">service_ga3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_ga4</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gscData</span> <span class="o">=</span> <span class="n">GscData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">service_gsc</span><span class="p">)</span>

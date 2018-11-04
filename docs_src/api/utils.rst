@@ -9,12 +9,8 @@ utils package
 Submodules
 ----------
 
-utils.jsonparse module
-----------------------
+.. toctree::
 
-.. automodule:: utils.jsonparse
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   utils.DimMetrics
+   utils.jsonparse
 

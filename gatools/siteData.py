@@ -16,14 +16,12 @@ from apiclient.discovery import build
 from utils.jsonparse import my_dict_df
 
 import logging
-_detail_formatting = "%(relativeCreated)08d[ms] - %(name)s - %(levelname)s - %(processName)-10s - %(threadName)s -\n*** %(message)s"
-logging.basicConfig(
-    level=logging.DEBUG, format=_detail_formatting, filename="log/all.log")
+logger = logging.getLogger(__name__)
 
 try:
     from google.colab import auth as colab_auth
 except:
-    print("I assume you are not using colab")
+    logger.info("I assume you are not using colab")
 
 from .gaData import GaData
 from .gscData import GscData
@@ -70,7 +68,7 @@ class SiteData:
         self.service_drv = build('drive', 'v3', credentials=self.cred)
         assert all([self.service_ga3, self.service_ga4, self.service_gsc]), \
                "credentail error"
-        print('ok')
+        logger.info('ga api3, ga api4, gsc, sheet, drive service are built') 
         # should I declare below vars in __init__?
         self.gaData = GaData(self.service_ga3, self.service_ga4)
         self.gscData = GscData(self.service_gsc)

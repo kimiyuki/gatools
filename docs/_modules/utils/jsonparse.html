@@ -82,7 +82,10 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/gatools.html">gatools package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/utils.html">utils package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/utils.DimMetrics.html">utils.DimMetrics module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/utils.jsonparse.html">utils.jsonparse module</a></li>
 </ul>
 
             
@@ -150,7 +153,7 @@
 <span class="kn">import</span> <span class="nn">numbers</span><span class="o">,</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">zip_longest</span>
-<div class="viewcode-block" id="my_json_parse"><a class="viewcode-back" href="../../api/utils.html#utils.jsonparse.my_json_parse">[docs]</a><span class="k">def</span> <span class="nf">my_json_parse</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="my_json_parse"><a class="viewcode-back" href="../../api/utils.jsonparse.html#utils.jsonparse.my_json_parse">[docs]</a><span class="k">def</span> <span class="nf">my_json_parse</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">):</span>
             <span class="k">yield</span> <span class="p">(</span><span class="n">prefix</span><span class="o">+</span><span class="n">k</span> <span class="p">,</span> <span class="n">v</span><span class="p">)</span>
@@ -164,7 +167,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span></div>
 
-<div class="viewcode-block" id="my_dict_df"><a class="viewcode-back" href="../../api/utils.html#utils.jsonparse.my_dict_df">[docs]</a><span class="k">def</span> <span class="nf">my_dict_df</span><span class="p">(</span><span class="n">dic</span><span class="p">):</span>
+<div class="viewcode-block" id="my_dict_df"><a class="viewcode-back" href="../../api/utils.jsonparse.html#utils.jsonparse.my_dict_df">[docs]</a><span class="k">def</span> <span class="nf">my_dict_df</span><span class="p">(</span><span class="n">dic</span><span class="p">):</span>
     <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span> 
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">my_json_parse</span><span class="p">(</span><span class="n">dic</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
@@ -177,7 +180,7 @@
             <span class="n">columns</span><span class="o">=</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
          <span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;pad&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../api/utils.html#utils.jsonparse.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../api/utils.jsonparse.html#utils.jsonparse.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;account_summary.json&quot;</span><span class="p">,</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
     <span class="n">my_iter_df</span><span class="p">(</span><span class="n">d</span><span class="p">)</span></div>

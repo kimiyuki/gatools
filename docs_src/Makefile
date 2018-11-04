@@ -15,7 +15,9 @@ help:
 .PHONY: help Makefile sphinx-apidoc
 
 sphinx-apidoc:
+	rm ./api/*.rst
 	sphinx-apidoc -f -e -o ./api -M ../gatools *.py
+	sphinx-apidoc -f -e -o ./api -M ../utils *.py
 	rm ./api/modules.rst
 
 
