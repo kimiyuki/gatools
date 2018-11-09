@@ -18,9 +18,21 @@ class GaRequest:
     dateRange: list = field(default_factory=lambda: ['7daysago', 'yesterday'])
     metrics:   list = field(default_factory=lambda: ['pageviews','users'])
     dimensions:list = field(default_factory=lambda: ['deviceCategory','date'])
+    segments: list = field(default_factory=lambda: [])
     viewId: str = ''
     pageSize: str = 1000
+
     #TODO segments
+
+    def __str__(self):
+        s0 =  f"viewId: {self.viewId}"
+        s1 =  f"date: {self.dateRange[0]} - {self.dateRange[1]}"
+        s2 =  f"metrics: {','.join(self.metrics)}"
+        s3 =  f"dimensions: {','.join(self.dimensions)}"
+        s4 =  f"segments: {','.join(self.segments)}"
+        s5 =  f"paging: token:{str(self.pageToken)} size:{str(self.pageSize)}"
+        return "\n".join([s0, s1, s2, s3, s4, s5])
+
 
     def get(self):
         return {
