@@ -1,11 +1,14 @@
 import numpy as np
 import pandas as pd
 from pandas.io.json import json_normalize
-import copy
+import copy, json
 import functools
 from dataclasses import dataclass, field
 from typing import List, Any
 import pickle
+from cachetools import cached 
+from cachetools.keys import hashkey
+from functools import partial
 
 @dataclass
 class GaRequest:
@@ -51,26 +54,40 @@ class GaData:
     def __init__(self, service_ga3, service_ga4):
         self.service_ga3 = service_ga3
         self.service_ga4 = service_ga4
+        self.mng = service_ga3.management()
         self.viewId = None
 
-    def retrieve_imported_data_cat(self,accountId=None,webPropertyId=None): 
+    def retrieve_imported_data_cat(self, accountId=None, webPropertyId=None): 
         """
         for only catalog info. 
         Google does not provide an api for downloading
         """
-        jsn = (self.service_ga3.management()
-               .customDataSources()
+        jsn = (self.mng.customDataSources()
                .list(accountId=accountId, webPropertyId=webPropertyId).execute())
         cat = json_normalize(jsn['items'])
         print(cat[['id', 'name']])
         return cat
 
 
+    def get_dimension_metrics(self, accountId=None, webPropertyId=None):
+        res_dm = (self.mng.customDimensions()
+               .list(accountId=accountId, webPropertyId=webPropertyId).execute())
+        res_mt = (self.mng.customMetrics()
+               .list(accountId=accountId, webPropertyId=webPropertyId).execute())
+        pass
+
+
+    def get_my_segments(self, accountId=None):
+        jsn = self.mng.segments().list().execute()
+        ret = json_normalize(jsn['items'])
+        return ret.loc[:,['id', 'name', 'definition', 'updated', 'created', 'type', 'selfLink']]
+
+
     def get_account_summary(self):
         """
         get google analytics account summary in profile level
         """
-        jsn = self.service_ga3.management().accountSummaries().list().execute()
+        jsn = self.mng.accountSummaries().list().execute()
         wp = pd.io.json.json_normalize(
                 jsn['items'], 
                 record_path='webProperties', meta=['id','name'],
@@ -95,9 +112,13 @@ class GaData:
             raise ValueError
         return True
 
-    #@functools.lru_cache(maxsize=300)
-    #def __report(self, viewid, requests:list, nextPageToken:int=None, maxreq:int=5):
-    #    return pd.concat(self._report(viewid, requests, nextPageToken, maxreq))
+    @cached(cache={}, key=partial(hashkey, '_report'))
+    def _report(self, body:str):
+        body = json.loads(body)
+        ret = self.service_ga4.reports().batchGet(body=body).execute()
+        #logger.debug(f"body:{body}")
+        #logger.info(f"{self._report.cache_info()}")
+        return ret
 
     def report(self, 
         viewId=None, 
@@ -113,7 +134,7 @@ class GaData:
 
         # use copy to prevent nextPageToken be change of the global var
         body = {"reportRequests": copy.deepcopy([x.get() for x in requests])}
-        res = self.service_ga4.reports().batchGet(body=body).execute()
+        res = self._report(json.dumps(body)) # json.dumps() for caching pass immutable data
         pickle.dump(res, open("log/gadata_res.pickle", 'wb'))
         #logging.log(ret)
         ##only to get first reports -> first requests
@@ -122,7 +143,7 @@ class GaData:
             print(f"total rows: {rowCount}")
         yield from self._changeToDataFrame(res['reports'])
         if 'nextPageToken' not in res['reports'][-1]:
-            print(f"get:{rowCount} rows")
+            print(f"done:{rowCount} rows")
             return 
         else:
           #make requests object again with requests[0]
