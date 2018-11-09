@@ -9,7 +9,8 @@ import pickle
 from cachetools import cached 
 from cachetools.keys import hashkey
 from functools import partial
-
+import logging
+logger = logging.getLogger(__name__)
 @dataclass
 class GaRequest:
     """
@@ -65,7 +66,7 @@ class GaData:
         jsn = (self.mng.customDataSources()
                .list(accountId=accountId, webPropertyId=webPropertyId).execute())
         cat = json_normalize(jsn['items'])
-        print(cat[['id', 'name']])
+        logger.info(cat[['id', 'name']])
         return cat
 
 
@@ -116,8 +117,7 @@ class GaData:
     def _report(self, body:str):
         body = json.loads(body)
         ret = self.service_ga4.reports().batchGet(body=body).execute()
-        #logger.debug(f"body:{body}")
-        #logger.info(f"{self._report.cache_info()}")
+        logger.debug(f"body:{body}")
         return ret
 
     def report(self, 
@@ -136,14 +136,14 @@ class GaData:
         body = {"reportRequests": copy.deepcopy([x.get() for x in requests])}
         res = self._report(json.dumps(body)) # json.dumps() for caching pass immutable data
         pickle.dump(res, open("log/gadata_res.pickle", 'wb'))
-        #logging.log(ret)
+        logger.debug(res)
         ##only to get first reports -> first requests
         rowCount = res['reports'][0]['data']['rowCount']
         if requests[0].pageToken == 0:
             print(f"total rows: {rowCount}")
         yield from self._changeToDataFrame(res['reports'])
         if 'nextPageToken' not in res['reports'][-1]:
-            print(f"done:{rowCount} rows")
+            print(f"done: rows {rowCount}")
             return 
         else:
           #make requests object again with requests[0]

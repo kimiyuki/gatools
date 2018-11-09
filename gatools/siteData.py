@@ -14,6 +14,7 @@ httplib2shim.patch()
 from apiclient import errors
 from apiclient.discovery import build
 from utils.jsonparse import my_dict_df
+from functools import partial
 
 import logging
 logger = logging.getLogger(__name__)
@@ -57,15 +58,18 @@ class SiteData:
             self._get_cred(path)
         self._build_service()
         assert self.cred.valid, "credential is invalid"
-        print('you need GA viewID like,\
+        logger.info('you need GA viewID like,\
                svc = SiteData(path="x.dat");svd.gaData.viewId=11111')
 
     def _build_service(self):
-        self.service_ga3 = build('analytics', 'v3', credentials=self.cred)
-        self.service_ga4 = build('analytics', 'v4', credentials=self.cred)
-        self.service_gsc = build('webmasters', 'v3', credentials=self.cred)
-        self.service_spd = build('sheets', 'v4', credentials=self.cred)
-        self.service_drv = build('drive', 'v3', credentials=self.cred)
+        """ build service for each service"""
+        #cache_discovery=False to prevent "file_cache is unavailable when using oauth2client"
+        _build = partial(build, cache_discovery=False, credentials=self.cred)
+        self.service_ga3 = _build('analytics', 'v3')
+        self.service_ga4 = _build('analytics', 'v4')
+        self.service_gsc = _build('webmasters', 'v3')
+        self.service_spd = _build('sheets', 'v4')
+        self.service_drv = _build('drive', 'v3')
         assert all([self.service_ga3, self.service_ga4, self.service_gsc]), \
                "credentail error"
         logger.info('ga api3, ga api4, gsc, sheet, drive service are built') 
@@ -84,7 +88,7 @@ class SiteData:
                 token=self.cred.token, refresh_token=self.cred.refresh_token,
                 token_uri=TOKEN_URL, client_id=CLIENT_ID,client_secret=CLIENT_SECRET
             )
-            print('refreshed')
+            logger.info('refreshed')
         if self.cred is None or self.cred.valid is False:
             self._get_code_auth(path)
 
