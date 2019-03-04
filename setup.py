@@ -1,7 +1,30 @@
+import os
+
+##https://wiki.python.org/moin/Distutils/Cookbook/AutoPackageDiscovery
+def is_package(path):
+    return (
+        os.path.isdir(path) and
+        os.path.isfile(os.path.join(path, '__init__.py'))
+        )
+
+def find_packages(path, base="" ):
+    """ Find all packages in path """
+    packages = {}
+    for item in os.listdir(path):
+        dir = os.path.join(path, item)
+        if is_package( dir ):
+            if base:
+                module_name = "%(base)s.%(item)s" % vars()
+            else:
+                module_name = item
+            packages[module_name] = dir
+            packages.update(find_packages(dir, module_name))
+    return packages
+##############################################
+
 from setuptools import setup
 install_requires = [
         'pandas', 
-        'yaml',
         'urllib3',
         'google-auth',
         'google-auth-httplib2',
@@ -16,5 +39,6 @@ setup(
     url='https://github.com/kimiyuki/gatools',
     install_requires= install_requires,
     licence=license,
-    packages=find_packages(exclude=('tests', 'docs'))
+    #packages=find_packages(exclude=('tests', 'docs'))
+    packages=find_packages(".")
 )
